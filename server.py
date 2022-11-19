@@ -3,6 +3,8 @@ import asyncio
 import os
 import socket
 
+from dns import message
+
 try:
     import uvloop
     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -19,7 +21,8 @@ class DnsServerProtocol:
         self.transport = transport
 
     def datagram_received(self, data, addr):
-        print('Received %r from %s' % (data, addr))
+        dq = message.from_wire(data)
+        print('Received %r from %s' % (dq, addr))
 
         loop = asyncio.get_event_loop()
 

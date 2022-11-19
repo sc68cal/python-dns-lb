@@ -1,2 +1,3 @@
 uvloop; os_name == "posix"
 aiohttp
+dnspython
