@@ -11,8 +11,9 @@ try:
 except ImportError:
     pass
 
-servers = ['https://www.google.com/',
-           'https://python.org'
+# Two of google.com's raw IPs
+servers = ['http://142.251.40.110',
+           'http://142.251.116.101'
            ]
 
 
@@ -21,30 +22,32 @@ class DnsServerProtocol:
         self.transport = transport
 
     def datagram_received(self, data, addr):
-        dq = message.from_wire(data)
-        print('Received %r from %s' % (dq, addr))
 
         loop = asyncio.get_event_loop()
 
         loop.create_task(self.check_servers(data, addr))
 
     async def check_servers(self, data, addr):
+        dq = message.from_wire(data)
+        print('Received %r from %s' % (dq, addr))
 
         checks = []
         for server in servers:
             checks.append(self.check_server(server))
 
         results = await asyncio.gather(*checks)
-        output = ""
-        for res in results:
-            output += str(res)
-        print('Send %r to %s' % (output.encode(), addr))
-        self.transport.sendto(output.encode(), addr)
+        output = message.make_response(dq)
+        for server, alive in results:
+            # TODO add rrset objects to output
+            pass
+
+        print('Send %r to %s' % (output, addr))
+        self.transport.sendto(output.to_wire(), addr)
 
     async def check_server(self, server):
         async with aiohttp.ClientSession() as session:
             async with session.get(server) as response:
-                return response.status == 200
+                return (server, response.status == 200)
 
 
 def main():
