@@ -1,5 +1,6 @@
 import aiohttp
 import asyncio
+import socket
 import uvloop
 
 asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
@@ -45,11 +46,16 @@ def main():
     # Create an event loop
     loop = asyncio.new_event_loop()
 
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+    sock.bind(("127.0.0.1", 9999))
+
     # One protocol instance will be created to serve all
     # client requests.
     t = loop.create_datagram_endpoint(
         lambda: DnsServerProtocol(),
-        local_addr=('127.0.0.1', 9999))
+        sock=sock
+    )
 
     loop.run_until_complete(t)
     loop.run_forever()
