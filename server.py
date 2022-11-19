@@ -2,9 +2,12 @@ import aiohttp
 import asyncio
 import os
 import socket
-import uvloop
 
-asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+try:
+    import uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+except ImportError:
+    pass
 
 servers = ['https://www.google.com/',
            'https://python.org'
@@ -48,11 +51,13 @@ def main():
     loop = asyncio.new_event_loop()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    if 'FreeBSD' in os.uname().sysname:
-        opt = 0x10000  # SO_REUSEPORT_LB on FreeBSD
-    else:
-        opt = socket.SO_REUSEPORT
-    sock.setsockopt(socket.SOL_SOCKET, opt, 1)
+    if os.name == 'posix':
+        if os.uname().sysname == 'FreeBSD':
+            opt = 0x10000  # SO_REUSEPORT_LB on FreeBSD
+        else:
+            opt = socket.SO_REUSEPORT
+        sock.setsockopt(socket.SOL_SOCKET, opt, 1)
+
     sock.bind(("127.0.0.1", 9999))
 
     # One protocol instance will be created to serve all

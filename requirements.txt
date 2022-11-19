@@ -1,2 +1,2 @@
-uvloop
+uvloop; os_name == "posix"
 aiohttp
