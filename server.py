@@ -1,5 +1,6 @@
 import aiohttp
 import asyncio
+import os
 import socket
 import uvloop
 
@@ -47,7 +48,11 @@ def main():
     loop = asyncio.new_event_loop()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+    if 'FreeBSD' in os.uname().sysname:
+        opt = 0x10000  # SO_REUSEPORT_LB on FreeBSD
+    else:
+        opt = socket.SO_REUSEPORT
+    sock.setsockopt(socket.SOL_SOCKET, opt, 1)
     sock.bind(("127.0.0.1", 9999))
 
     # One protocol instance will be created to serve all
