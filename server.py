@@ -12,10 +12,11 @@ try:
 except ImportError:
     pass
 
-# Two of google.com's raw IPs
-servers = ['http://142.251.40.110',
-           'http://142.251.116.101'
-           ]
+server_query = """
+SELECT host FROM dns_zone_member
+JOIN dns_zone ON dns_zone_member.dns_zone = dns_zone.id
+WHERE dns_zone.name=?
+"""
 
 
 class DnsServerProtocol:
@@ -32,6 +33,7 @@ class DnsServerProtocol:
         dq = message.from_wire(data)
         print('Received %r from %s' % (dq, addr))
 
+        servers = await self.get_servers_for_domain(dq.question[0].name.to_text())
         checks = []
         for server in servers:
             checks.append(self.check_server(server))
@@ -49,6 +51,14 @@ class DnsServerProtocol:
         async with aiohttp.ClientSession() as session:
             async with session.get(server) as response:
                 return (server, response.status == 200)
+
+    async def get_servers_for_domain(self, domain):
+        query = [[server_query, domain]]
+        async with aiohttp.ClientSession() as session:
+            async with session.post("http://127.0.0.1:4001/db/query?associative",
+                                    json=query) as resp:
+                data = await resp.json()
+                return [x['host'] for x in data['results'][0]['rows']]
 
 
 def main():
