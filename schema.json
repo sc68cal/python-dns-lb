@@ -1,0 +1,6 @@
+[
+    "DROP TABLE IF EXISTS dns_zone",
+    "DROP TABLE IF EXISTS dns_zone_member",
+    "CREATE TABLE dns_zone (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, name TEXT)",
+    "CREATE TABLE dns_zone_member (id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, host TEXT, dns_zone INTEGER, FOREIGN KEY(dns_zone) REFERENCES dns_zone(id))"
+]
