@@ -49,7 +49,7 @@ class DnsServerProtocol:
 
     async def check_server(self, server):
         async with aiohttp.ClientSession() as session:
-            async with session.get(server) as response:
+            async with session.get("http://"+server) as response:
                 return (server, response.status == 200)
 
     async def get_servers_for_domain(self, domain):
