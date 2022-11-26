@@ -2,6 +2,7 @@ import aiohttp
 import asyncio
 import os
 import socket
+import sys
 
 from dns import message
 
@@ -57,7 +58,7 @@ def main():
     loop = asyncio.new_event_loop()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    if os.name == 'posix':
+    if os.name == 'posix' and sys.platform != 'cygwin':
         if os.uname().sysname == 'FreeBSD':
             opt = 0x10000  # SO_REUSEPORT_LB on FreeBSD
         else:
