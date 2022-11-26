@@ -1,5 +1,5 @@
 [
-    "INSERT INTO dns_zone (id, name) VALUES (1, 'google.com')",
+    "INSERT INTO dns_zone (id, name) VALUES (1, 'google.com.')",
     "INSERT INTO dns_zone_member (host, dns_zone) VALUES ('142.251.40.110', 1)",
     "INSERT INTO dns_zone_member (host, dns_zone) VALUES ('142.251.116.101', 1)"
 ]
