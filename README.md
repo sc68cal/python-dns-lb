@@ -22,7 +22,7 @@ podman run -p4001:4001 docker.io/rqlite/rqlite
 
 For a real deployment, you can use the [3 node k8s deployment](https://github.com/rqlite/kubernetes-configuration/blob/master/statefulset-3-node.yaml).
 
-If you are using [k3s](k3s.io) you will need to create a PVC that uses
+If you are using [k3s](https://k3s.io) you will need to create a PVC that uses
 the [`local-path` storage](https://docs.k3s.io/storage#setting-up-the-local-storage-provider) 
 ```yaml
 apiVersion: v1
