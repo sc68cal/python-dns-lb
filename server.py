@@ -4,7 +4,9 @@ import os
 import socket
 import sys
 
+import dns
 from dns import message
+from dns.rdtypes.IN.A import A as A_RECORD
 
 try:
     import uvloop
@@ -33,16 +35,27 @@ class DnsServerProtocol:
         dq = message.from_wire(data)
         print('Received %r from %s' % (dq, addr))
 
-        servers = await self.get_servers_for_domain(dq.question[0].name.to_text())
+        domain = dq.question[0].name.to_text()
+        servers = await self.get_servers_for_domain(domain)
         checks = []
         for server in servers:
             checks.append(self.check_server(server))
 
         results = await asyncio.gather(*checks)
         output = message.make_response(dq)
+        rdclass = dns.rdataclass.from_text('IN')
+        rdtype = dns.rdatatype.A
+        dnsname = dns.name.from_text(domain)
+
+        records = []
+
+        # TODO - implement round-robin instead of returning all
         for server, alive in results:
-            # TODO add rrset objects to output
-            pass
+            if alive:
+                records.append(A_RECORD(rdclass, rdtype, server))
+
+        rrset = dns.rrset.from_rdata(dnsname, 9600,*records)
+        output.answer.append(rrset)
 
         print('Send %r to %s' % (output, addr))
         self.transport.sendto(output.to_wire(), addr)
