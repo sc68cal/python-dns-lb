@@ -1,12 +1,28 @@
-### Python DNS loadbalancer daemon
+# Python DNS loadbalancer daemon
 
 This is a python based DNS service, that takes DNS queries for
 FQDNs, and returns DNS responses, based on what members in a
 pool are available.
 
+## Purpose
 
-https://medium.com/dev-bits/a-minimalistic-guide-for-understanding-asyncio-in-python-52c436c244ea
-https://uvloop.readthedocs.io/dev/index.html
+This was written to try out a couple of different technologies that
+I have been meaning to experiment with for a couple years now. One
+of the major features of recent versions of Python 3 that has been
+the support for asynchronous programming within the language itself (as opposed to libraries like `twisted` or `gevent`), and the ecosystem of
+libraries (like `aiohttp`) that take advantage of the new primitives that 
+recent versions of Python 3 now provide.
+
+I also wanted to try out `rqlite`, which has been on my radar for a
+number of years. I always wanted to try it, but never had an opportunity
+for greenfield development where I could build from the beginning with
+`rqlite` in mind.
+
+
+### Tech stack
+
+It uses [asyncio][asyncio], the [`create_datagram_endpoint` API][datagram],
+[rqlite][rqlite], [dnspython][dnspython], [aiohttp][aiohttp], and [uvloop][uvloop] (where supported).
 
 
 ## rqlite database
@@ -20,10 +36,11 @@ podman run -p4001:4001 docker.io/rqlite/rqlite
 
 ### rqlite production cluster
 
-For a real deployment, you can use the [3 node k8s deployment](https://github.com/rqlite/kubernetes-configuration/blob/master/statefulset-3-node.yaml).
+For a real deployment, you can use the [3 node k8s deployment][rquite-3-node].
 
-If you are using [k3s](https://k3s.io) you will need to create a PVC that uses
-the [`local-path` storage](https://docs.k3s.io/storage#setting-up-the-local-storage-provider) 
+If you are using [k3s](https://k3s.io) you will need to create a
+PVC that uses the [`local-path` storage][local-path]
+
 ```yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -48,7 +65,7 @@ Then modify the rqlite 3 node deployment the YAML slightly.
 >       storageClassName: "local-path"
 ```
 
-
+https://github.com/rqlite/rqlite
 ### Schema and initial data
 
 ```shell
@@ -72,3 +89,13 @@ on most distributions. FreeBSD has it as part of the `dns/bind-tools` port.
 ```shell
 dig @127.0.0.1 -p 9999 google.com
 ```
+
+
+[asyncio]: https://docs.python.org/3.9/library/asyncio.html
+[local-path]: https://docs.k3s.io/storage#setting-up-the-local-storage-provider
+[rquite-3-node]: https://github.com/rqlite/kubernetes-configuration/blob/master/statefulset-3-node.yaml
+[datagram]: https://docs.python.org/3.9/library/asyncio-protocol.html#udp-echo-server
+[rqlite]: https://github.com/rqlite/rqlite
+[dnspython]: https://dnspython.readthedocs.io/
+[uvloop]: https://uvloop.readthedocs.io/dev/index.html
+[aiohttp]: https://docs.aiohttp.org/en/stable/index.html
