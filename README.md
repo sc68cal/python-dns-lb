@@ -65,6 +65,16 @@ Then modify the rqlite 3 node deployment the YAML slightly.
 >       storageClassName: "local-path"
 ```
 
+This project also relies on [foreign key constraints][fk], so the kubernetes YAML
+for deploying `rqlite` also needs have the `fk` setting added.
+
+```patch
+21c21
+<         args: ["-disco-mode=dns","-disco-config={\"name\":\"rqlite-svc-internal\"}","-bootstrap-expect","3", "-join-interval=1s", "-join-attempts=120"]
+---
+>         args: ["-disco-mode=dns","-disco-config={\"name\":\"rqlite-svc-internal\"}","-bootstrap-expect","3", "-join-interval=1s", "-join-attempts=120", "-fk=true"]
+```
+
 https://github.com/rqlite/rqlite
 ### Schema and initial data
 
@@ -99,3 +109,4 @@ dig @127.0.0.1 -p 9999 google.com
 [dnspython]: https://dnspython.readthedocs.io/
 [uvloop]: https://uvloop.readthedocs.io/dev/index.html
 [aiohttp]: https://docs.aiohttp.org/en/stable/index.html
+[fk]: https://github.com/rqlite/rqlite/blob/master/DOC/FOREIGN_KEY_CONSTRAINTS.md
